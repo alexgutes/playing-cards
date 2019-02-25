@@ -2,28 +2,60 @@ package com.drills.playingcards;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
+@Entity
 public class Deck {
 
-  private ArrayList<PlayingCard> deck;
+  @OneToMany(mappedBy = "deck")
+  private List<Card> cards;
 
-  private Comparator<PlayingCard> bySuite = (PlayingCard a, PlayingCard b) -> a.getSuite().compareTo(b.getSuite());
-  private Comparator<PlayingCard> byValue = (PlayingCard a, PlayingCard b) -> a.getNumber().compareTo(b.getNumber());
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
+
+  @Transient
+  private Comparator<Card> bySuite = (Card a, Card b) -> a.getSuite().compareTo(b.getSuite());
+
+  @Transient
+  private Comparator<Card> byValue = (Card a, Card b) -> a.getNumber().compareTo(b.getNumber());
+
+  public Long getId() {
+    return this.id;
+  }
+
+  /**
+   * Convenience method for asociating a card with a deck
+   */
+  public void addCard(Card card) {
+    if (this.getCards() == null) {
+      this.setCards(new ArrayList<Card>());
+    }
+    this.getCards().add(card);
+    card.setDeck(this);
+  }
 
   public void sortByNumber() {
-    this.deck.sort(byValue);
+    this.cards.sort(byValue);
   }
 
   public void sortBySuite() {
-    this.deck.sort(bySuite);
+    this.cards.sort(bySuite);
   }
 
-  public ArrayList<PlayingCard> getDeck() {
-    return deck;
+  public List<Card> getCards() {
+    return this.cards;
   }
 
-  public void setDeck(ArrayList<PlayingCard> deck) {
-    this.deck = deck;
+  public void setCards(List<Card> cards) {
+    this.cards = cards;
   }
 
 }
